@@ -15,7 +15,80 @@ To write a PYTHON program for socket for HTTP for web page upload and download
 <BR>
 6.Stop the program
 <BR>
-## Program 
+## Program
+## CLIENT.PY
+```
+import socket
+s = socket.socket()
+s.connect(("localhost", 3024))
+ch = input("1.Download  2.Upload : ")
+if ch == "1":
+    req = "GET / HTTP/1.1\nHost: localhost\n\n"
+    s.send(req.encode())
+    data = s.recv(4096)
+    print(data.decode())
+else:
+    msg = input("Enter data to upload: ")
+    req = "POST / HTTP/1.1\nHost: localhost\n\n" + msg
+    s.send(req.encode())
+    data = s.recv(1024)
+    print(data.decode())
+
+s.close()
+```
+## SERVER.PY
+```
+import socket
+s = socket.socket()
+s.bind(("localhost", 3024))
+s.listen(1)
+print("Server running...")
+
+while True:
+    c, addr = s.accept()
+    request = c.recv(4096).decode()
+    print(f"Request received ")
+
+    if "GET" in request:
+        try:
+            with open("index.html", "r") as f:
+                data = f.read()
+            response = "HTTP/1.1 200 OK\n\n" + data
+        except FileNotFoundError:
+            response = "HTTP/1.1 404 Not Found\n\nFile not found"
+    elif "POST" in request:
+        body = request.split("\n\n", 1)[-1]
+        with open("upload.txt", "w") as f:
+            f.write(body)
+        response = "HTTP/1.1 200 OK\n\nFile Uploaded"
+    else:
+        response = "HTTP/1.1 400 Bad Request\n\nUnknown method"
+
+    c.send(response.encode())
+    c.close()
+```
+## INDEX.HTML
+```
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Document</title>
+</head>
+<body>
+    <p>hello world</p>
+</body>
+</html>
+```
 ## OUTPUT
+## CLIENT
+<img width="948" height="533" alt="Screenshot 2026-05-29 112651" src="https://github.com/user-attachments/assets/bc8932eb-60a0-49a6-976b-0d10ba21977b" />
+
+
+## SERVER
+<img width="936" height="533" alt="Screenshot 2026-05-29 112751" src="https://github.com/user-attachments/assets/b3d21396-3bc4-4239-a1b3-1c44637ed090" />
+
+
+
 ## Result
-Thus the socket for HTTP for web page upload and download created and Executed
+Thus the socket for HTTP for web page upload and download created and Executed 
